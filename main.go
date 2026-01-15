@@ -229,19 +229,36 @@ Include error_message and error_type for failures.
 				ErrorState:      os.Args[3],
 				Tools:           os.Args[4],
 			}
-			jsonPayload, _ := json.Marshal(args)
+			jsonPayload, err := json.Marshal(args)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error marshaling JSON for prociq_retrieve_context: %v\n", err)
+				os.Exit(1)
+			}
 			reqBody := bytes.NewBuffer(jsonPayload)
 
-			req, _ := http.NewRequest("POST", mcpConfig.ServerURL+"/retrieve_context", reqBody)
+			req, err := http.NewRequest("POST", mcpConfig.ServerURL+"/retrieve_context", reqBody)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error creating request for prociq_retrieve_context: %v\n", err)
+				os.Exit(1)
+			}
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("X-API-Key", mcpConfig.ApiKey)
 
-			fmt.Printf("STUB: Simulating HTTP Request for prociq_retrieve_context:\n")
-			fmt.Printf("  Method: %s\n", req.Method)
-			fmt.Printf("  URL: %s\n", req.URL)
-			fmt.Printf("  Headers: %s\n", req.Header)
-			fmt.Printf("  Body: %s\n", reqBody.String())
-			fmt.Println("STUB: Implement actual HTTP request to MCP server here.")
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error sending request for prociq_retrieve_context: %v\n", err)
+				os.Exit(1)
+			}
+			defer resp.Body.Close()
+
+			respBody, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error reading response body for prociq_retrieve_context: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Println(string(respBody))
 		case "prociq_log_episode":
 			type LogEpisodeArgs struct {
 				TaskGoal        string  `json:"task_goal"`
@@ -254,7 +271,11 @@ Include error_message and error_type for failures.
 				ImportanceHint  float64 `json:"importance_hint"`
 			}
 
-			importanceHint, _ := strconv.ParseFloat(os.Args[9], 64)
+			importanceHint, err := strconv.ParseFloat(os.Args[9], 64)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error parsing importance_hint for prociq_log_episode: %v\n", err)
+				os.Exit(1)
+			}
 
 			args := LogEpisodeArgs{
 				TaskGoal:        os.Args[2],
@@ -266,19 +287,36 @@ Include error_message and error_type for failures.
 				ComponentTypes:  os.Args[8],
 				ImportanceHint:  importanceHint,
 			}
-			jsonPayload, _ := json.Marshal(args)
+			jsonPayload, err := json.Marshal(args)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error marshaling JSON for prociq_log_episode: %v\n", err)
+				os.Exit(1)
+			}
 			reqBody := bytes.NewBuffer(jsonPayload)
 
-			req, _ := http.NewRequest("POST", mcpConfig.ServerURL+"/log_episode", reqBody)
+			req, err := http.NewRequest("POST", mcpConfig.ServerURL+"/log_episode", reqBody)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error creating request for prociq_log_episode: %v\n", err)
+				os.Exit(1)
+			}
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("X-API-Key", mcpConfig.ApiKey)
 
-			fmt.Printf("STUB: Simulating HTTP Request for prociq_log_episode:\n")
-			fmt.Printf("  Method: %s\n", req.Method)
-			fmt.Printf("  URL: %s\n", req.URL)
-			fmt.Printf("  Headers: %s\n", req.Header)
-			fmt.Printf("  Body: %s\n", reqBody.String())
-			fmt.Println("STUB: Implement actual HTTP request to MCP server here.")
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error sending request for prociq_log_episode: %v\n", err)
+				os.Exit(1)
+			}
+			defer resp.Body.Close()
+
+			respBody, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error reading response body for prociq_log_episode: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Println(string(respBody))
 		case "prociq_search_episodes":
 			type SearchEpisodesArgs struct {
 				Query string `json:"query"`
@@ -286,45 +324,88 @@ Include error_message and error_type for failures.
 			args := SearchEpisodesArgs{
 				Query: os.Args[2],
 			}
-			jsonPayload, _ := json.Marshal(args)
+			jsonPayload, err := json.Marshal(args)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error marshaling JSON for prociq_search_episodes: %v\n", err)
+				os.Exit(1)
+			}
 			reqBody := bytes.NewBuffer(jsonPayload)
 
-			req, _ := http.NewRequest("POST", mcpConfig.ServerURL+"/search_episodes", reqBody)
+			req, err := http.NewRequest("POST", mcpConfig.ServerURL+"/search_episodes", reqBody)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error creating request for prociq_search_episodes: %v\n", err)
+				os.Exit(1)
+			}
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("X-API-Key", mcpConfig.ApiKey)
 
-			fmt.Printf("STUB: Simulating HTTP Request for prociq_search_episodes:\n")
-			fmt.Printf("  Method: %s\n", req.Method)
-			fmt.Printf("  URL: %s\n", req.URL)
-			fmt.Printf("  Headers: %s\n", req.Header)
-			fmt.Printf("  Body: %s\n", reqBody.String())
-			fmt.Println("STUB: Implement actual HTTP request to MCP server here.")
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error sending request for prociq_search_episodes: %v\n", err)
+				os.Exit(1)
+			}
+			defer resp.Body.Close()
+
+			respBody, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error reading response body for prociq_search_episodes: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Println(string(respBody))
 		case "prociq_get_memory_stats":
 			reqBody := bytes.NewBuffer([]byte("{}")) // Empty JSON body for no parameters
 
-			req, _ := http.NewRequest("POST", mcpConfig.ServerURL+"/get_memory_stats", reqBody)
+			req, err := http.NewRequest("POST", mcpConfig.ServerURL+"/get_memory_stats", reqBody)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error creating request for prociq_get_memory_stats: %v\n", err)
+				os.Exit(1)
+			}
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("X-API-Key", mcpConfig.ApiKey)
 
-			fmt.Printf("STUB: Simulating HTTP Request for prociq_get_memory_stats:\n")
-			fmt.Printf("  Method: %s\n", req.Method)
-			fmt.Printf("  URL: %s\n", req.URL)
-			fmt.Printf("  Headers: %s\n", req.Header)
-			fmt.Printf("  Body: %s\n", reqBody.String())
-			fmt.Println("STUB: Implement actual HTTP request to MCP server here.")
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error sending request for prociq_get_memory_stats: %v\n", err)
+				os.Exit(1)
+			}
+			defer resp.Body.Close()
+
+			respBody, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error reading response body for prociq_get_memory_stats: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Println(string(respBody))
 		case "prociq_trigger_consolidation":
 			reqBody := bytes.NewBuffer([]byte("{}")) // Empty JSON body for no parameters
 
-			req, _ := http.NewRequest("POST", mcpConfig.ServerURL+"/trigger_consolidation", reqBody)
+			req, err := http.NewRequest("POST", mcpConfig.ServerURL+"/trigger_consolidation", reqBody)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error creating request for prociq_trigger_consolidation: %v\n", err)
+				os.Exit(1)
+			}
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("X-API-Key", mcpConfig.ApiKey)
 
-			fmt.Printf("STUB: Simulating HTTP Request for prociq_trigger_consolidation:\n")
-			fmt.Printf("  Method: %s\n", req.Method)
-			fmt.Printf("  URL: %s\n", req.URL)
-			fmt.Printf("  Headers: %s\n", req.Header)
-			fmt.Printf("  Body: %s\n", reqBody.String())
-			fmt.Println("STUB: Implement actual HTTP request to MCP server here.")
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error sending request for prociq_trigger_consolidation: %v\n", err)
+				os.Exit(1)
+			}
+			defer resp.Body.Close()
+
+			respBody, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error reading response body for prociq_trigger_consolidation: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Println(string(respBody))
 		default:
 			fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
 			os.Exit(1)
