@@ -29,6 +29,17 @@ MemLayer provides Claude Code with episodic memory capabilities, allowing it to:
 
 For more details on plugin installation, see the [official documentation](https://code.claude.com/docs/en/plugin-marketplaces).
 
+### Gemini CLI
+
+To install this plugin using the Gemini CLI, navigate to the root directory of this repository and run:
+
+```bash
+gemini plugin install ./plugin.yaml
+```
+
+This will register the `prociq_memory` plugin with your Gemini CLI environment.
+
+
 ## Project Structure
 
 ```
@@ -163,6 +174,10 @@ Automatic processing that:
 ### Critical Rule: Log Failures First
 
 Always log a failure **before** retrying. This captures the exact error context that would otherwise be lost after a successful retry.
+
+## Memory System Usage
+
+For detailed documentation on how to use the memory system, including the various tools, their parameters, and best practices, please see the [Memory System Usage Guide](./plugins/memory/skills/memory-usage/SKILL.md).
 
 ## How Hooks Work
 

@@ -24,3 +24,8 @@ schema:
       # This is a stub, so we are not actually implementing the logic to return the context.
       # We will just return a string that says that the tool was called.
       # TODO: Implement the logic to return the context.
+    - name: get_memory_documentation
+      description: "Get the documentation for the memory system"
+      parameters: []
+      command:
+        - "get_memory_documentation"
