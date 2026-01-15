@@ -1,0 +1,26 @@
+
+# yaml-language-server: $schema=https://raw.githubusercontent.com/GoogleCloudPlatform/oss-tools/main/gemini-pro-extended-models/context/generative_ai_schemas/plugin_v1.schema.json
+runtime:
+  binary: ./memlayer
+schema:
+  name: prociq_memory
+  description: "Self-learning memory system for Gemini - learn from past experiences"
+  tools:
+    - name: memory_reminder
+      description: "Remind Gemini about memory tools at session start"
+      parameters: []
+      command:
+        - "memory_reminder"
+      # The response from this tool should be the additionalContext from the session-start.sh script.
+      # This is a stub, so we are not actually implementing the logic to return the context.
+      # We will just return a string that says that the tool was called.
+      # TODO: Implement the logic to return the context.
+    - name: memory_workflow
+      description: "Inject memory workflow instructions into Gemini's context"
+      parameters: []
+      command:
+        - "memory_workflow"
+      # The response from this tool should be the additionalContext from the user-prompt.sh script.
+      # This is a stub, so we are not actually implementing the logic to return the context.
+      # We will just return a string that says that the tool was called.
+      # TODO: Implement the logic to return the context.
