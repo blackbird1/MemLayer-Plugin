@@ -1,7 +1,7 @@
 
 # yaml-language-server: $schema=https://raw.githubusercontent.com/GoogleCloudPlatform/oss-tools/main/gemini-pro-extended-models/context/generative_ai_schemas/plugin_v1.schema.json
 runtime:
-  binary: ./memlayer
+  binary: memlayer
 schema:
   name: prociq_memory
   description: "Self-learning memory system for Gemini - learn from past experiences"
