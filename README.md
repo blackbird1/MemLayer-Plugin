@@ -31,13 +31,20 @@ For more details on plugin installation, see the [official documentation](https:
 
 ### Gemini CLI
 
-To install this plugin using the Gemini CLI, navigate to the root directory of this repository and run:
+To install this plugin using the Gemini CLI:
 
-```bash
-gemini plugin install ./plugin.yaml
-```
+1.  **Compile the Go program**: Navigate to the root directory of this repository and run:
+    ```bash
+    go build -o memlayer main.go
+    ```
+    This creates the `memlayer` executable.
+2.  **Move the `memlayer` binary to your PATH**: Move the compiled `memlayer` executable to a directory that is included in your system's `PATH` environment variable (e.g., `/usr/local/bin` on Linux/macOS, or a custom directory you've added to PATH).
+3.  **Install the plugin**: From the root directory of this repository, run:
+    ```bash
+    gemini plugin install ./plugin.yaml
+    ```
+    This will register the `prociq_memory` plugin with your Gemini CLI environment.
 
-This will register the `prociq_memory` plugin with your Gemini CLI environment.
 
 ### MCP Configuration
 
