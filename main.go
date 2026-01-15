@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 type McpConfig struct {
@@ -216,31 +219,111 @@ Include error_message and error_type for failures.
 	
 	Auto-consolidation triggers every 10 episodes and at session end.`)
 		case "prociq_retrieve_context":
-			taskDescription := os.Args[2]
-			errorState := os.Args[3]
-			tools := os.Args[4]
-			fmt.Printf("Calling prociq_retrieve_context with:\n  Task Description: %s\n  Error State: %s\n  Tools: %s\n  Server URL: %s\n  API Key: %s\n", taskDescription, errorState, tools, mcpConfig.ServerURL, mcpConfig.ApiKey)
+			type RetrieveContextArgs struct {
+				TaskDescription string `json:"task_description"`
+				ErrorState      string `json:"error_state"`
+				Tools           string `json:"tools"`
+			}
+			args := RetrieveContextArgs{
+				TaskDescription: os.Args[2],
+				ErrorState:      os.Args[3],
+				Tools:           os.Args[4],
+			}
+			jsonPayload, _ := json.Marshal(args)
+			reqBody := bytes.NewBuffer(jsonPayload)
+
+			req, _ := http.NewRequest("POST", mcpConfig.ServerURL+"/retrieve_context", reqBody)
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("X-API-Key", mcpConfig.ApiKey)
+
+			fmt.Printf("STUB: Simulating HTTP Request for prociq_retrieve_context:\n")
+			fmt.Printf("  Method: %s\n", req.Method)
+			fmt.Printf("  URL: %s\n", req.URL)
+			fmt.Printf("  Headers: %s\n", req.Header)
+			fmt.Printf("  Body: %s\n", reqBody.String())
 			fmt.Println("STUB: Implement actual HTTP request to MCP server here.")
 		case "prociq_log_episode":
-			taskGoal := os.Args[2]
-			approachTaken := os.Args[3]
-			outcome := os.Args[4]
-			errorMessage := os.Args[5]
-			toolsUsed := os.Args[6]
-			filePatterns := os.Args[7]
-			componentTypes := os.Args[8]
-			importanceHint := os.Args[9]
-			fmt.Printf("Calling prociq_log_episode with:\n  Task Goal: %s\n  Approach Taken: %s\n  Outcome: %s\n  Error Message: %s\n  Tools Used: %s\n  File Patterns: %s\n  Component Types: %s\n  Importance Hint: %s\n  Server URL: %s\n  API Key: %s\n", taskGoal, approachTaken, outcome, errorMessage, toolsUsed, filePatterns, componentTypes, importanceHint, mcpConfig.ServerURL, mcpConfig.ApiKey)
+			type LogEpisodeArgs struct {
+				TaskGoal        string  `json:"task_goal"`
+				ApproachTaken   string  `json:"approach_taken"`
+				Outcome         string  `json:"outcome"`
+				ErrorMessage    string  `json:"error_message"`
+				ToolsUsed       string  `json:"tools_used"`
+				FilePatterns    string  `json:"file_patterns"`
+				ComponentTypes  string  `json:"component_types"`
+				ImportanceHint  float64 `json:"importance_hint"`
+			}
+
+			importanceHint, _ := strconv.ParseFloat(os.Args[9], 64)
+
+			args := LogEpisodeArgs{
+				TaskGoal:        os.Args[2],
+				ApproachTaken:   os.Args[3],
+				Outcome:         os.Args[4],
+				ErrorMessage:    os.Args[5],
+				ToolsUsed:       os.Args[6],
+				FilePatterns:    os.Args[7],
+				ComponentTypes:  os.Args[8],
+				ImportanceHint:  importanceHint,
+			}
+			jsonPayload, _ := json.Marshal(args)
+			reqBody := bytes.NewBuffer(jsonPayload)
+
+			req, _ := http.NewRequest("POST", mcpConfig.ServerURL+"/log_episode", reqBody)
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("X-API-Key", mcpConfig.ApiKey)
+
+			fmt.Printf("STUB: Simulating HTTP Request for prociq_log_episode:\n")
+			fmt.Printf("  Method: %s\n", req.Method)
+			fmt.Printf("  URL: %s\n", req.URL)
+			fmt.Printf("  Headers: %s\n", req.Header)
+			fmt.Printf("  Body: %s\n", reqBody.String())
 			fmt.Println("STUB: Implement actual HTTP request to MCP server here.")
 		case "prociq_search_episodes":
-			query := os.Args[2]
-			fmt.Printf("Calling prociq_search_episodes with:\n  Query: %s\n  Server URL: %s\n  API Key: %s\n", query, mcpConfig.ServerURL, mcpConfig.ApiKey)
+			type SearchEpisodesArgs struct {
+				Query string `json:"query"`
+			}
+			args := SearchEpisodesArgs{
+				Query: os.Args[2],
+			}
+			jsonPayload, _ := json.Marshal(args)
+			reqBody := bytes.NewBuffer(jsonPayload)
+
+			req, _ := http.NewRequest("POST", mcpConfig.ServerURL+"/search_episodes", reqBody)
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("X-API-Key", mcpConfig.ApiKey)
+
+			fmt.Printf("STUB: Simulating HTTP Request for prociq_search_episodes:\n")
+			fmt.Printf("  Method: %s\n", req.Method)
+			fmt.Printf("  URL: %s\n", req.URL)
+			fmt.Printf("  Headers: %s\n", req.Header)
+			fmt.Printf("  Body: %s\n", reqBody.String())
 			fmt.Println("STUB: Implement actual HTTP request to MCP server here.")
 		case "prociq_get_memory_stats":
-			fmt.Printf("Calling prociq_get_memory_stats with:\n  Server URL: %s\n  API Key: %s\n", mcpConfig.ServerURL, mcpConfig.ApiKey)
+			reqBody := bytes.NewBuffer([]byte("{}")) // Empty JSON body for no parameters
+
+			req, _ := http.NewRequest("POST", mcpConfig.ServerURL+"/get_memory_stats", reqBody)
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("X-API-Key", mcpConfig.ApiKey)
+
+			fmt.Printf("STUB: Simulating HTTP Request for prociq_get_memory_stats:\n")
+			fmt.Printf("  Method: %s\n", req.Method)
+			fmt.Printf("  URL: %s\n", req.URL)
+			fmt.Printf("  Headers: %s\n", req.Header)
+			fmt.Printf("  Body: %s\n", reqBody.String())
 			fmt.Println("STUB: Implement actual HTTP request to MCP server here.")
 		case "prociq_trigger_consolidation":
-			fmt.Printf("Calling prociq_trigger_consolidation with:\n  Server URL: %s\n  API Key: %s\n", mcpConfig.ServerURL, mcpConfig.ApiKey)
+			reqBody := bytes.NewBuffer([]byte("{}")) // Empty JSON body for no parameters
+
+			req, _ := http.NewRequest("POST", mcpConfig.ServerURL+"/trigger_consolidation", reqBody)
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("X-API-Key", mcpConfig.ApiKey)
+
+			fmt.Printf("STUB: Simulating HTTP Request for prociq_trigger_consolidation:\n")
+			fmt.Printf("  Method: %s\n", req.Method)
+			fmt.Printf("  URL: %s\n", req.URL)
+			fmt.Printf("  Headers: %s\n", req.Header)
+			fmt.Printf("  Body: %s\n", reqBody.String())
 			fmt.Println("STUB: Implement actual HTTP request to MCP server here.")
 		default:
 			fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
