@@ -1,7 +1,7 @@
 
 # yaml-language-server: $schema=https://raw.githubusercontent.com/GoogleCloudPlatform/oss-tools/main/gemini-pro-extended-models/context/generative_ai_schemas/plugin_v1.schema.json
 runtime:
-  binary: memlayer
+  binary: ./memlayer
 schema:
   name: prociq_memory
   description: "Self-learning memory system for Gemini - learn from past experiences"
@@ -10,6 +10,7 @@ schema:
       description: "Remind Gemini about memory tools at session start"
       parameters: []
       command:
+        - "./memlayer"
         - "memory_reminder"
       # The response from this tool should be the additionalContext from the session-start.sh script.
       # This is a stub, so we are not actually implementing the logic to return the context.
@@ -19,6 +20,7 @@ schema:
       description: "Inject memory workflow instructions into Gemini's context"
       parameters: []
       command:
+        - "./memlayer"
         - "memory_workflow"
       # The response from this tool should be the additionalContext from the user-prompt.sh script.
       # This is a stub, so we are not actually implementing the logic to return the context.
@@ -28,6 +30,7 @@ schema:
       description: "Get the documentation for the memory system"
       parameters: []
       command:
+        - "./memlayer"
         - "get_memory_documentation"
     - name: prociq_retrieve_context
       description: "Get relevant past experiences before starting a task"
@@ -39,7 +42,11 @@ schema:
         - name: "tools"
           description: "Tools you're likely to use"
       command:
+        - "./memlayer"
         - "prociq_retrieve_context"
+        - "{{.task_description}}"
+        - "{{.error_state}}"
+        - "{{.tools}}"
     - name: prociq_log_episode
       description: "Record what happened after completing/failing a task"
       parameters:
@@ -60,21 +67,34 @@ schema:
         - name: "importance_hint"
           description: "Higher for important discoveries"
       command:
+        - "./memlayer"
         - "prociq_log_episode"
+        - "{{.task_goal}}"
+        - "{{.approach_taken}}"
+        - "{{.outcome}}"
+        - "{{.error_message}}"
+        - "{{.tools_used}}"
+        - "{{.file_patterns}}"
+        - "{{.component_types}}"
+        - "{{.importance_hint}}"
     - name: prociq_search_episodes
       description: "Search past experiences by query"
       parameters:
         - name: "query"
           description: "The query to search for"
       command:
+        - "./memlayer"
         - "prociq_search_episodes"
+        - "{{.query}}"
     - name: prociq_get_memory_stats
       description: "Check memory system status"
       parameters: []
       command:
+        - "./memlayer"
         - "prociq_get_memory_stats"
     - name: prociq_trigger_consolidation
       description: "To process accumulated episodes into patterns"
       parameters: []
       command:
+        - "./memlayer"
         - "prociq_trigger_consolidation"
