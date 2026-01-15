@@ -29,3 +29,52 @@ schema:
       parameters: []
       command:
         - "get_memory_documentation"
+    - name: prociq_retrieve_context
+      description: "Get relevant past experiences before starting a task"
+      parameters:
+        - name: "task_description"
+          description: "Specific description of what you're about to do"
+        - name: "error_state"
+          description: "Current error message if debugging"
+        - name: "tools"
+          description: "Tools you're likely to use"
+      command:
+        - "prociq_retrieve_context"
+    - name: prociq_log_episode
+      description: "Record what happened after completing/failing a task"
+      parameters:
+        - name: "task_goal"
+          description: "What you were trying to accomplish"
+        - name: "approach_taken"
+          description: "How you approached it and what worked/failed"
+        - name: "outcome"
+          description: "success | partial | failure"
+        - name: "error_message"
+          description: "Details if failed"
+        - name: "tools_used"
+          description: "Tools used"
+        - name: "file_patterns"
+          description: "File patterns involved"
+        - name: "component_types"
+          description: "Component types involved"
+        - name: "importance_hint"
+          description: "Higher for important discoveries"
+      command:
+        - "prociq_log_episode"
+    - name: prociq_search_episodes
+      description: "Search past experiences by query"
+      parameters:
+        - name: "query"
+          description: "The query to search for"
+      command:
+        - "prociq_search_episodes"
+    - name: prociq_get_memory_stats
+      description: "Check memory system status"
+      parameters: []
+      command:
+        - "prociq_get_memory_stats"
+    - name: prociq_trigger_consolidation
+      description: "To process accumulated episodes into patterns"
+      parameters: []
+      command:
+        - "prociq_trigger_consolidation"
