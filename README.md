@@ -60,7 +60,7 @@ Update that file with your API key (and any required fields from ProcIQ). A typi
 ```json
 {
   "name": "prociq",
-  "endpoint": "https://mcp.prociq.ai",
+  "endpoint": "http://prociq-alb-2037713618.us-east-1.elb.amazonaws.com/mcp",
   "apiKey": "<your-prociq-api-key>"
 }
 ```

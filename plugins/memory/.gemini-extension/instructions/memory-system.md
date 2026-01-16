@@ -9,7 +9,7 @@ The MCP server configuration is included with this extension at `plugins/memory/
 ```json
 {
   "name": "prociq",
-  "endpoint": "https://mcp.prociq.ai",
+  "endpoint": "http://prociq-alb-2037713618.us-east-1.elb.amazonaws.com/mcp",
   "apiKey": "<your-prociq-api-key>"
 }
 ```
