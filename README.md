@@ -31,13 +31,18 @@ For more details on plugin installation, see the [official documentation](https:
 
 ### Gemini CLI
 
-To install this plugin using the Gemini CLI, navigate to the root directory of this repository and run:
+To install this plugin using the Gemini CLI, navigate to the root directory of this repository, build the plugin binary, and then run:
 
 ```bash
+go build -o memlayer .
 gemini plugin install ./plugin.yaml
 ```
 
-This will register the `prociq_memory` plugin with your Gemini CLI environment.
+This will register the `prociq_memory` plugin with your Gemini CLI environment. The `plugin.yaml` runtime points at `./memlayer`, so the binary must exist and be executable when you run the install.
+
+#### Troubleshooting Gemini CLI Install
+
+If you see errors about `run_shell_command` not being found, the install command is being attempted inside an LLM chat/tool environment rather than your system shell. The Gemini CLI does **not** expose a `run_shell_command` tool, so you must run the install command directly in a terminal (e.g., your local shell or a CI step) instead of asking the model to execute it. The only tooling involved in installation is the `gemini` CLI binary itself; no plugin tools are used during `gemini plugin install`.
 
 ### MCP Configuration
 
@@ -51,6 +56,25 @@ This plugin expects an MCP configuration file at `~/.mcp.json`. Please create th
 ```
 
 Replace `YOUR_MCP_SERVER_URL` with the actual URL of your MCP server (e.g., `https://mcp.prociq.ai`) and `YOUR_API_KEY` with your API key.
+
+#### MCP Installation/Setup Checklist
+
+1. **Sign up and get credentials** from your ProcIQ MCP server.
+2. **Create `~/.mcp.json`** with the server URL and API key (example above).
+3. **Build the plugin binary** from the repo root:
+   ```bash
+   go build -o memlayer .
+   ```
+4. **Install the plugin** with Gemini CLI:
+   ```bash
+   gemini plugin install ./plugin.yaml
+   ```
+5. **Verify the plugin can reach MCP** by running a tool command (example):
+   ```bash
+   ./memlayer prociq_get_memory_stats
+   ```
+
+If step 5 fails, double-check the server URL and API key in `~/.mcp.json`. The plugin forwards requests to the MCP server endpoints defined in `main.go`, so any auth or URL mismatch will surface as HTTP errors.
 
 ## Project Structure
 
