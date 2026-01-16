@@ -49,7 +49,7 @@ The extension relies on the ProcIQ MCP server being configured in your Gemini en
 
 ### MCP Configuration (Gemini)
 
-Add the ProcIQ MCP server in the MCP configuration location used by your Gemini client (the same place where you register MCP servers). The exact schema is provided by ProcIQ, but a typical entry includes your API key and the ProcIQ server endpoint:
+The MCP server configuration is not stored in this repository. Add the ProcIQ MCP server in the MCP configuration location used by your Gemini client (the same place where you register MCP servers). The exact schema is provided by ProcIQ, but a typical entry includes your API key and the ProcIQ server endpoint:
 
 ```json
 {
