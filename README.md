@@ -29,6 +29,16 @@ MemLayer provides Claude Code with episodic memory capabilities, allowing it to:
 
 For more details on plugin installation, see the [official documentation](https://code.claude.com/docs/en/plugin-marketplaces).
 
+## Gemini Extension
+
+The Gemini extension mirrors the Claude plugin commands and usage guidance. Point Gemini's extension loader at:
+
+```
+plugins/memory/.gemini-extension/extension.json
+```
+
+Once loaded, use the `memory.audit`, `memory.teach`, and `memory.forget` commands to manage ProcIQ memory from Gemini.
+
 ## Project Structure
 
 ```
@@ -39,6 +49,10 @@ MemLayer-Plugin/
     └── memory/
         ├── .claude-plugin/
         │   └── plugin.json   # Plugin manifest
+        ├── .gemini-extension/
+        │   ├── extension.json  # Gemini extension manifest
+        │   ├── commands/       # Gemini command prompts
+        │   └── instructions/   # Gemini usage guide
         ├── commands/         # CLI commands
         │   ├── audit.md      # /memory:audit - inspect memory state
         │   ├── teach.md      # /memory:teach - inject knowledge manually
