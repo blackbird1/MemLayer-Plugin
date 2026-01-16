@@ -18,6 +18,14 @@ Use the values supplied by [prociq.ai](https://prociq.ai) and restart Gemini aft
 
 Installing the extension does not automatically register MCP servers in Gemini, so copy the `mcp.json` entry into your Gemini MCP configuration location and restart Gemini after updating it.
 
+### Troubleshooting
+
+If discovery fails with `fetch failed`, verify:
+
+1. `PROCIQ_TOKEN` is set and valid.
+2. The MCP endpoint `http://prociq-alb-2037713618.us-east-1.elb.amazonaws.com/mcp` is reachable from your environment.
+3. Gemini has been restarted after updating MCP configuration.
+
 ## When to Use
 
 - Before starting any non-trivial task, retrieve relevant context.
