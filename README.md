@@ -31,26 +31,7 @@ For more details on plugin installation, see the [official documentation](https:
 
 ### Gemini CLI
 
-To install this plugin using the Gemini CLI, navigate to the root directory of this repository and run:
-
-```bash
-gemini plugin install ./plugin.yaml
-```
-
-This will register the `prociq_memory` plugin with your Gemini CLI environment.
-
-### MCP Configuration
-
-This plugin expects an MCP configuration file at `~/.mcp.json`. Please create this file with your server URL and API key in the following format:
-
-```json
-{
-  "server_url": "YOUR_MCP_SERVER_URL",
-  "api_key": "YOUR_API_KEY"
-}
-```
-
-Replace `YOUR_MCP_SERVER_URL` with the actual URL of your MCP server (e.g., `https://mcp.prociq.ai`) and `YOUR_API_KEY` with your API key.
+For the standard Gemini CLI setup (build, MCP config, install, verify, and troubleshooting), see [GEMINI.md](./GEMINI.md).
 
 ## Project Structure
 
