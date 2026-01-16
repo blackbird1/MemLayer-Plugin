@@ -55,7 +55,7 @@ The MCP server configuration is included with the Gemini extension and lives at:
 plugins/memory/.gemini-extension/mcp.json
 ```
 
-The bundled configuration expects the ProcIQ API key to be provided via the `PROCIQ_TOKEN` environment variable. A typical entry includes the endpoint and environment variable reference:
+The bundled configuration expects the ProcIQ API key (bearer token) to be provided via the `PROCIQ_TOKEN` environment variable. A typical entry includes the endpoint and environment variable reference:
 
 ```json
 {

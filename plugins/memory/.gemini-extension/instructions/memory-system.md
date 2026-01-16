@@ -4,7 +4,7 @@ Use this extension to integrate Gemini with the ProcIQ memory system for persist
 
 This extension expects the ProcIQ MCP server to be configured in Gemini so the `prociq_*` tools are available. The MCP server is responsible for making the HTTP calls to the ProcIQ backend using your API key.
 
-The MCP server configuration is included with this extension at `plugins/memory/.gemini-extension/mcp.json`. It expects the ProcIQ API key to come from the `PROCIQ_TOKEN` environment variable, and a typical entry looks like:
+The MCP server configuration is included with this extension at `plugins/memory/.gemini-extension/mcp.json`. It expects the ProcIQ API key (bearer token) to come from the `PROCIQ_TOKEN` environment variable, and a typical entry looks like:
 
 ```json
 {
