@@ -67,6 +67,8 @@ Update that file with your API key (and any required fields from ProcIQ). A typi
 
 Replace the values with the configuration details from [prociq.ai](https://prociq.ai), then restart Gemini so it loads the new MCP server configuration.
 
+Note: installing the extension does not automatically register MCP servers with Gemini. You must copy the `mcp.json` entry into your Gemini MCP configuration file/location and restart Gemini after updating it.
+
 ## Project Structure
 
 ```

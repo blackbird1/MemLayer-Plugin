@@ -16,6 +16,8 @@ The MCP server configuration is included with this extension at `plugins/memory/
 
 Use the values supplied by [prociq.ai](https://prociq.ai) and restart Gemini after updating the MCP configuration.
 
+Installing the extension does not automatically register MCP servers in Gemini, so copy the `mcp.json` entry into your Gemini MCP configuration location and restart Gemini after updating it.
+
 ## When to Use
 
 - Before starting any non-trivial task, retrieve relevant context.
