@@ -55,13 +55,13 @@ The MCP server configuration is included with the Gemini extension and lives at:
 plugins/memory/.gemini-extension/mcp.json
 ```
 
-Update that file with your API key (and any required fields from ProcIQ). A typical entry includes your API key and the ProcIQ server endpoint:
+The bundled configuration expects the ProcIQ API key to be provided via the `PROCIQ_TOKEN` environment variable. A typical entry includes the endpoint and environment variable reference:
 
 ```json
 {
   "name": "prociq",
   "endpoint": "http://prociq-alb-2037713618.us-east-1.elb.amazonaws.com/mcp",
-  "apiKey": "<your-prociq-api-key>"
+  "apiKey": "${PROCIQ_TOKEN}"
 }
 ```
 
