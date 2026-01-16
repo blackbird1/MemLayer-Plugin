@@ -29,6 +29,32 @@ MemLayer provides Claude Code with episodic memory capabilities, allowing it to:
 
 For more details on plugin installation, see the [official documentation](https://code.claude.com/docs/en/plugin-marketplaces).
 
+## Gemini Extension
+
+The Gemini extension mirrors the Claude plugin commands and usage guidance. Point Gemini's extension loader at:
+
+```
+plugins/memory/.gemini-extension/extension.json
+```
+
+Once loaded, use the `prociq.audit`, `prociq.teach`, and `prociq.forget` commands to manage ProcIQ memory from Gemini.
+
+The extension relies on the ProcIQ MCP server being configured in your Gemini environment (with your API key). The MCP server is what actually makes the HTTP requests to the ProcIQ backend when Gemini invokes `prociq_*` tools.
+
+### MCP Configuration (Gemini)
+
+Add the ProcIQ MCP server in the MCP configuration location used by your Gemini client (the same place where you register MCP servers). The exact schema is provided by ProcIQ, but a typical entry includes your API key and the ProcIQ server endpoint:
+
+```json
+{
+  "name": "prociq",
+  "endpoint": "https://mcp.prociq.ai",
+  "apiKey": "<your-prociq-api-key>"
+}
+```
+
+Replace the values with the configuration details from [prociq.ai](https://prociq.ai), then restart Gemini so it loads the new MCP server configuration.
+
 ## Project Structure
 
 ```
@@ -39,6 +65,10 @@ MemLayer-Plugin/
     └── memory/
         ├── .claude-plugin/
         │   └── plugin.json   # Plugin manifest
+        ├── .gemini-extension/
+        │   ├── extension.json  # Gemini extension manifest
+        │   ├── commands/       # Gemini command prompts
+        │   └── instructions/   # Gemini usage guide
         ├── commands/         # CLI commands
         │   ├── audit.md      # /memory:audit - inspect memory state
         │   ├── teach.md      # /memory:teach - inject knowledge manually
