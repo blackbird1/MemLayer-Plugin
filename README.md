@@ -31,7 +31,13 @@ For more details on plugin installation, see the [official documentation](https:
 
 ## Gemini Extension
 
-The Gemini extension mirrors the Claude plugin commands and usage guidance. Point Gemini's extension loader at:
+The Gemini extension mirrors the Claude plugin commands and usage guidance. The Gemini CLI expects a `gemini-extension.json` file at the repo root, so you can run:
+
+```
+gemini extensions install ./
+```
+
+If you need the raw manifest used by the extension, it is located at:
 
 ```
 plugins/memory/.gemini-extension/extension.json
