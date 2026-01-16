@@ -43,7 +43,11 @@ To install this plugin using the Gemini CLI:
     ```bash
     gemini plugin install ./plugin.yaml
     ```
-    This will register the `prociq_memory` plugin with your Gemini CLI environment.
+    This will register the `prociq_memory` plugin with your Gemini CLI environment. The `plugin.yaml` runtime points at `./memlayer`, so the binary must exist and be executable when you run the install.
+
+#### Troubleshooting Gemini CLI Install
+
+If you see errors about `run_shell_command` not being found, the install command is being attempted inside an LLM chat/tool environment rather than your system shell. The Gemini CLI does **not** expose a `run_shell_command` tool, so you must run the install command directly in a terminal (e.g., your local shell or a CI step) instead of asking the model to execute it. The only tooling involved in installation is the `gemini` CLI binary itself; no plugin tools are used during `gemini plugin install`.
 
 
 ### MCP Configuration
