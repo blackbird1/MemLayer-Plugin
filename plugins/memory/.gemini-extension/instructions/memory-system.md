@@ -2,6 +2,8 @@
 
 Use this extension to integrate Gemini with the ProcIQ memory system for persistent learning across sessions.
 
+This extension expects the ProcIQ MCP server to be configured in Gemini so the `prociq_*` tools are available (use your ProcIQ API key for the server configuration).
+
 ## When to Use
 
 - Before starting any non-trivial task, retrieve relevant context.

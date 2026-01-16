@@ -39,6 +39,8 @@ plugins/memory/.gemini-extension/extension.json
 
 Once loaded, use the `memory.audit`, `memory.teach`, and `memory.forget` commands to manage ProcIQ memory from Gemini.
 
+The extension relies on the ProcIQ MCP server being configured in your Gemini environment (with your API key) so the `prociq_*` tools are available to invoke.
+
 ## Project Structure
 
 ```
