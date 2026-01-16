@@ -25,5 +25,6 @@
     }
   ],
   "instructions": "plugins/memory/.gemini-extension/instructions/memory-system.md",
+  "mcp": "plugins/memory/.gemini-extension/mcp.json",
   "keywords": ["memory", "learning", "patterns", "episodes", "mcp", "gemini"]
 }

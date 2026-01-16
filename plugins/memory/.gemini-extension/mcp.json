@@ -1,0 +1,5 @@
+{
+  "name": "prociq",
+  "endpoint": "https://mcp.prociq.ai",
+  "apiKey": "<your-prociq-api-key>"
+}

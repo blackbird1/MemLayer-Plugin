@@ -25,5 +25,6 @@
     }
   ],
   "instructions": "instructions/memory-system.md",
+  "mcp": "mcp.json",
   "keywords": ["memory", "learning", "patterns", "episodes", "mcp", "gemini"]
 }
