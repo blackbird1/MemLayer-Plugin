@@ -76,6 +76,10 @@ Replace `YOUR_MCP_SERVER_URL` with the actual URL of your MCP server (e.g., `htt
 
 If step 5 fails, double-check the server URL and API key in `~/.mcp.json`. The plugin forwards requests to the MCP server endpoints defined in `main.go`, so any auth or URL mismatch will surface as HTTP errors.
 
+#### Troubleshooting MCP discovery `spawn ~/.mcp.json EACCES`
+
+If Gemini CLI reports `Error during discovery for MCP server 'prociq': spawn ~/.mcp.json EACCES`, it is trying to execute the JSON file as a command. The `~/.mcp.json` file is **only** read by the `memlayer` binary (see `main.go`) and should not be configured as an MCP server command in Gemini. Ensure your Gemini MCP server configuration does **not** point to `~/.mcp.json` as an executable, and confirm the file is readable (for example: `chmod 600 ~/.mcp.json` and owned by your user).
+
 ## Project Structure
 
 ```
