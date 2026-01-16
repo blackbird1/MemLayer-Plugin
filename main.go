@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -9,32 +10,94 @@ import (
 	"os"
 	"path/filepath" // Re-add this import
 	"strconv"
+	"strings"
 )
 
+type Headers struct {
+	Authorization string `json:"Authorization"`
+}
+
+type MemlayerConfig struct {
+	Type      string  `json:"type"`
+	ServerURL string  `json:"url"`
+	Headers   Headers `json:"headers"`
+}
+
+type McpServers struct {
+	Memlayer MemlayerConfig `json:"memlayer"`
+}
+
 type McpConfig struct {
-	ServerURL string `json:"server_url"`
-	ApiKey    string `json:"api_key"`
+	McpServers McpServers `json:"mcpServers"`
 }
 
 var mcpConfig McpConfig
 
 func loadMcpConfig() error {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return fmt.Errorf("failed to get user home directory: %w", err)
+	configPath := ".mcp.json"
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return fmt.Errorf("failed to get user home directory: %w", err)
+		}
+		configPath = filepath.Join(homeDir, ".mcp.json")
 	}
 
-	configPath := filepath.Join(homeDir, ".mcp.json")
+	fmt.Printf("Attempting to load MCP config from: %s\n", configPath)
 	fileContent, err := ioutil.ReadFile(configPath)
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error reading .mcp.json at %s: %v\n", configPath, err)
 		return fmt.Errorf("failed to read .mcp.json: %w", err)
 	}
+	fmt.Printf("Successfully read .mcp.json. Content:\n%s\n", string(fileContent))
 
 	err = json.Unmarshal(fileContent, &mcpConfig)
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error parsing .mcp.json: %v\n", err)
 		return fmt.Errorf("failed to parse .mcp.json: %w", err)
 	}
+	fmt.Printf("Successfully parsed .mcp.json. ServerURL: %s, ApiKey: %s\n", mcpConfig.McpServers.Memlayer.ServerURL, mcpConfig.McpServers.Memlayer.Headers.Authorization)
 	return nil
+}
+
+func callProciqApi(endpoint string, jsonPayload []byte) ([]byte, error) {
+	reqBody := bytes.NewBuffer(jsonPayload)
+
+	baseURL := mcpConfig.McpServers.Memlayer.ServerURL
+	var fullURL string
+	if strings.Contains(baseURL, "?") {
+		parts := strings.SplitN(baseURL, "?", 2)
+		fullURL = parts[0] + endpoint + "?" + parts[1]
+	} else {
+		fullURL = baseURL + endpoint
+	}
+
+	req, err := http.NewRequest("POST", fullURL, reqBody)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request for %s: %w", endpoint, err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "text/event-stream")
+	req.Header.Set("Authorization", mcpConfig.McpServers.Memlayer.Headers.Authorization)
+
+	tr := &http.Transport{}
+	if os.Getenv("PROCIQ_SKIP_TLS_VERIFY") == "true" {
+		tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+
+	client := &http.Client{Transport: tr}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request for %s: %w", endpoint, err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body for %s: %w", endpoint, err)
+	}
+
+	return respBody, nil
 }
 
 func main() {
@@ -134,8 +197,8 @@ ALWAYS log failures - they prevent repeating mistakes:
 
 Include error_message and error_type for failures.
 </prociq-memory>`)
-		case "get_memory_documentation":
-			fmt.Println(`---
+	case "get_memory_documentation":
+		fmt.Println(`---
 	description: This skill should be used when working with the prociq memory system, logging episodes, retrieving context, or managing patterns and skills.
 	Triggers include debugging errors, starting complex tasks, or when the user asks about past experiences.
 	---
@@ -218,196 +281,114 @@ Include error_message and error_type for failures.
 	- Promote patterns to skills
 	
 	Auto-consolidation triggers every 10 episodes and at session end.`)
-		case "prociq_retrieve_context":
-			type RetrieveContextArgs struct {
-				TaskDescription string `json:"task_description"`
-				ErrorState      string `json:"error_state"`
-				Tools           string `json:"tools"`
-			}
-			args := RetrieveContextArgs{
-				TaskDescription: os.Args[2],
-				ErrorState:      os.Args[3],
-				Tools:           os.Args[4],
-			}
-			jsonPayload, err := json.Marshal(args)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error marshaling JSON for prociq_retrieve_context: %v\n", err)
-				os.Exit(1)
-			}
-			reqBody := bytes.NewBuffer(jsonPayload)
-
-			req, err := http.NewRequest("POST", mcpConfig.ServerURL+"/retrieve_context", reqBody)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error creating request for prociq_retrieve_context: %v\n", err)
-				os.Exit(1)
-			}
-			req.Header.Set("Content-Type", "application/json")
-			req.Header.Set("X-API-Key", mcpConfig.ApiKey)
-
-			client := &http.Client{}
-			resp, err := client.Do(req)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error sending request for prociq_retrieve_context: %v\n", err)
-				os.Exit(1)
-			}
-			defer resp.Body.Close()
-
-			respBody, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error reading response body for prociq_retrieve_context: %v\n", err)
-				os.Exit(1)
-			}
-
-			fmt.Println(string(respBody))
-		case "prociq_log_episode":
-			type LogEpisodeArgs struct {
-				TaskGoal        string  `json:"task_goal"`
-				ApproachTaken   string  `json:"approach_taken"`
-				Outcome         string  `json:"outcome"`
-				ErrorMessage    string  `json:"error_message"`
-				ToolsUsed       string  `json:"tools_used"`
-				FilePatterns    string  `json:"file_patterns"`
-				ComponentTypes  string  `json:"component_types"`
-				ImportanceHint  float64 `json:"importance_hint"`
-			}
-
-			importanceHint, err := strconv.ParseFloat(os.Args[9], 64)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error parsing importance_hint for prociq_log_episode: %v\n", err)
-				os.Exit(1)
-			}
-
-			args := LogEpisodeArgs{
-				TaskGoal:        os.Args[2],
-				ApproachTaken:   os.Args[3],
-				Outcome:         os.Args[4],
-				ErrorMessage:    os.Args[5],
-				ToolsUsed:       os.Args[6],
-				FilePatterns:    os.Args[7],
-				ComponentTypes:  os.Args[8],
-				ImportanceHint:  importanceHint,
-			}
-			jsonPayload, err := json.Marshal(args)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error marshaling JSON for prociq_log_episode: %v\n", err)
-				os.Exit(1)
-			}
-			reqBody := bytes.NewBuffer(jsonPayload)
-
-			req, err := http.NewRequest("POST", mcpConfig.ServerURL+"/log_episode", reqBody)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error creating request for prociq_log_episode: %v\n", err)
-				os.Exit(1)
-			}
-			req.Header.Set("Content-Type", "application/json")
-			req.Header.Set("X-API-Key", mcpConfig.ApiKey)
-
-			client := &http.Client{}
-			resp, err := client.Do(req)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error sending request for prociq_log_episode: %v\n", err)
-				os.Exit(1)
-			}
-			defer resp.Body.Close()
-
-			respBody, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error reading response body for prociq_log_episode: %v\n", err)
-				os.Exit(1)
-			}
-
-			fmt.Println(string(respBody))
-		case "prociq_search_episodes":
-			type SearchEpisodesArgs struct {
-				Query string `json:"query"`
-			}
-			args := SearchEpisodesArgs{
-				Query: os.Args[2],
-			}
-			jsonPayload, err := json.Marshal(args)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error marshaling JSON for prociq_search_episodes: %v\n", err)
-				os.Exit(1)
-			}
-			reqBody := bytes.NewBuffer(jsonPayload)
-
-			req, err := http.NewRequest("POST", mcpConfig.ServerURL+"/search_episodes", reqBody)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error creating request for prociq_search_episodes: %v\n", err)
-				os.Exit(1)
-			}
-			req.Header.Set("Content-Type", "application/json")
-			req.Header.Set("X-API-Key", mcpConfig.ApiKey)
-
-			client := &http.Client{}
-			resp, err := client.Do(req)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error sending request for prociq_search_episodes: %v\n", err)
-				os.Exit(1)
-			}
-			defer resp.Body.Close()
-
-			respBody, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error reading response body for prociq_search_episodes: %v\n", err)
-				os.Exit(1)
-			}
-
-			fmt.Println(string(respBody))
-		case "prociq_get_memory_stats":
-			reqBody := bytes.NewBuffer([]byte("{}")) // Empty JSON body for no parameters
-
-			req, err := http.NewRequest("POST", mcpConfig.ServerURL+"/get_memory_stats", reqBody)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error creating request for prociq_get_memory_stats: %v\n", err)
-				os.Exit(1)
-			}
-			req.Header.Set("Content-Type", "application/json")
-			req.Header.Set("X-API-Key", mcpConfig.ApiKey)
-
-			client := &http.Client{}
-			resp, err := client.Do(req)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error sending request for prociq_get_memory_stats: %v\n", err)
-				os.Exit(1)
-			}
-			defer resp.Body.Close()
-
-			respBody, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error reading response body for prociq_get_memory_stats: %v\n", err)
-				os.Exit(1)
-			}
-
-			fmt.Println(string(respBody))
-		case "prociq_trigger_consolidation":
-			reqBody := bytes.NewBuffer([]byte("{}")) // Empty JSON body for no parameters
-
-			req, err := http.NewRequest("POST", mcpConfig.ServerURL+"/trigger_consolidation", reqBody)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error creating request for prociq_trigger_consolidation: %v\n", err)
-				os.Exit(1)
-			}
-			req.Header.Set("Content-Type", "application/json")
-			req.Header.Set("X-API-Key", mcpConfig.ApiKey)
-
-			client := &http.Client{}
-			resp, err := client.Do(req)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error sending request for prociq_trigger_consolidation: %v\n", err)
-				os.Exit(1)
-			}
-			defer resp.Body.Close()
-
-			respBody, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error reading response body for prociq_trigger_consolidation: %v\n", err)
-				os.Exit(1)
-			}
-
-			fmt.Println(string(respBody))
-		default:
-			fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
+	case "prociq_retrieve_context":
+		type RetrieveContextArgs struct {
+			TaskDescription string `json:"task_description"`
+			ErrorState      string `json:"error_state"`
+			Tools           string `json:"tools"`
+		}
+		args := RetrieveContextArgs{
+			TaskDescription: os.Args[2],
+			ErrorState:      os.Args[3],
+			Tools:           os.Args[4],
+		}
+		jsonPayload, err := json.Marshal(args)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error marshaling JSON for prociq_retrieve_context: %v\n", err)
 			os.Exit(1)
 		}
+
+		respBody, err := callProciqApi("/retrieve_context", jsonPayload)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error calling prociq_retrieve_context API: %v\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Println(string(respBody))
+	case "prociq_log_episode":
+		type LogEpisodeArgs struct {
+			TaskGoal       string  `json:"task_goal"`
+			ApproachTaken  string  `json:"approach_taken"`
+			Outcome        string  `json:"outcome"`
+			ErrorMessage   string  `json:"error_message"`
+			ToolsUsed      string  `json:"tools_used"`
+			FilePatterns   string  `json:"file_patterns"`
+			ComponentTypes string  `json:"component_types"`
+			ImportanceHint float64 `json:"importance_hint"`
+		}
+
+		importanceHint, err := strconv.ParseFloat(os.Args[9], 64)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error parsing importance_hint for prociq_log_episode: %v\n", err)
+			os.Exit(1)
+		}
+
+		args := LogEpisodeArgs{
+			TaskGoal:       os.Args[2],
+			ApproachTaken:  os.Args[3],
+			Outcome:        os.Args[4],
+			ErrorMessage:   os.Args[5],
+			ToolsUsed:      os.Args[6],
+			FilePatterns:   os.Args[7],
+			ComponentTypes: os.Args[8],
+			ImportanceHint: importanceHint,
+		}
+		jsonPayload, err := json.Marshal(args)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error marshaling JSON for prociq_log_episode: %v\n", err)
+			os.Exit(1)
+		}
+		respBody, err := callProciqApi("/log_episode", jsonPayload)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error calling prociq_log_episode API: %v\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Println(string(respBody))
+	case "prociq_search_episodes":
+		type SearchEpisodesArgs struct {
+			Query string `json:"query"`
+		}
+		args := SearchEpisodesArgs{
+			Query: os.Args[2],
+		}
+		jsonPayload, err := json.Marshal(args)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error marshaling JSON for prociq_search_episodes: %v\n", err)
+			os.Exit(1)
+		}
+
+		respBody, err := callProciqApi("/search_episodes", jsonPayload)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error creating request for prociq_search_episodes: %v\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Println(string(respBody))
+	case "prociq_get_memory_stats":
+		reqBody := bytes.NewBuffer([]byte("{}")) // Empty JSON body for no parameters
+
+		respBody, err := callProciqApi("/get_memory_stats", reqBody.Bytes())
+
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error creating request for prociq_get_memory_stats: %v\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Println(string(respBody))
+	case "prociq_trigger_consolidation":
+		reqBody := bytes.NewBuffer([]byte("{}")) // Empty JSON body for no parameters
+
+		respBody, err := callProciqApi("/trigger_consolidation", reqBody.Bytes())
+
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error creating request for prociq_trigger_consolidation: %v\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Println(string(respBody))
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
+		os.Exit(1)
+	}
 }
