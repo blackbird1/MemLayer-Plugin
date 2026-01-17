@@ -1,6 +1,6 @@
 {
   "name": "prociq",
-  "endpoint": "http://prociq-alb-2037713618.us-east-1.elb.amazonaws.com/mcp",
+  "endpoint": "https://api.prociq.ai/mcp",
   "apiKey": "${PROCIQ_TOKEN}",
   "transport": "sse"
 }
