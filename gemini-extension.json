@@ -1,0 +1,30 @@
+{
+  "name": "memory",
+  "version": "0.1.0",
+  "description": "Persistent memory system that learns from past experiences",
+  "author": {
+    "name": "ProcIQ"
+  },
+  "repository": "https://github.com/shafty023/MemLayer-Plugin",
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "prociq.audit",
+      "description": "Inspect the current state of the memory system",
+      "file": "plugins/memory/.gemini-extension/commands/audit.md"
+    },
+    {
+      "name": "prociq.teach",
+      "description": "Manually inject knowledge into the memory system",
+      "file": "plugins/memory/.gemini-extension/commands/teach.md"
+    },
+    {
+      "name": "prociq.forget",
+      "description": "Remove episodes from the memory system",
+      "file": "plugins/memory/.gemini-extension/commands/forget.md"
+    }
+  ],
+  "instructions": "plugins/memory/.gemini-extension/instructions/memory-system.md",
+  "mcp": "plugins/memory/.gemini-extension/mcp.json",
+  "keywords": ["memory", "learning", "patterns", "episodes", "mcp", "gemini"]
+}

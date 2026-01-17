@@ -29,6 +29,68 @@ MemLayer provides Claude Code with episodic memory capabilities, allowing it to:
 
 For more details on plugin installation, see the [official documentation](https://code.claude.com/docs/en/plugin-marketplaces).
 
+## Gemini Extension
+
+The Gemini extension mirrors the Claude plugin commands and usage guidance. The Gemini CLI expects a `gemini-extension.json` file at the repo root, so you can run:
+
+```
+gemini extensions install ./
+```
+
+If you need the raw manifest used by the extension, it is located at:
+
+```
+plugins/memory/.gemini-extension/extension.json
+```
+
+Once loaded, use the `prociq.audit`, `prociq.teach`, and `prociq.forget` commands to manage ProcIQ memory from Gemini.
+
+The extension relies on the ProcIQ MCP server being configured in your Gemini environment (with your API key). The MCP server is what actually makes the HTTP requests to the ProcIQ backend when Gemini invokes `prociq_*` tools.
+
+### MCP Configuration (Gemini)
+
+The MCP server configuration is included with the Gemini extension and lives at:
+
+```
+plugins/memory/.gemini-extension/mcp.json
+```
+
+The bundled configuration expects the ProcIQ API key (bearer token) to be provided via the `PROCIQ_TOKEN` environment variable. A typical entry includes the endpoint and environment variable reference:
+
+```json
+{
+  "name": "prociq",
+  "endpoint": "http://prociq-alb-2037713618.us-east-1.elb.amazonaws.com/mcp",
+  "apiKey": "${PROCIQ_TOKEN}",
+  "transport": "sse"
+}
+```
+
+Replace the values with the configuration details from [prociq.ai](https://prociq.ai), then restart Gemini so it loads the new MCP server configuration.
+
+Note: installing the extension does not automatically register MCP servers with Gemini. You must copy the `mcp.json` entry into your Gemini MCP configuration file/location and restart Gemini after updating it.
+
+#### Gemini MCP CLI Setup
+
+If you prefer configuring MCP via the CLI, use `gemini mcp add` with your project and bearer token:
+
+```
+gemini mcp add prociq "http://prociq-alb-2037713618.us-east-1.elb.amazonaws.com/mcp?project=<your-project>" \
+  --header "Authorization: Bearer ${PROCIQ_TOKEN}" --transport sse --trust
+```
+
+#### Troubleshooting MCP Discovery
+
+If you see errors like `Error during discovery for MCP server 'prociq': fetch failed`, check:
+
+1. `PROCIQ_TOKEN` is set in your environment and is a valid bearer token.
+2. Your network can reach `http://prociq-alb-2037713618.us-east-1.elb.amazonaws.com/mcp` (no proxy or firewall blocking HTTP).
+3. Your Gemini MCP configuration file includes the `prociq` entry and Gemini was restarted after changes.
+
+If you see `Not Acceptable: Client must accept text/event-stream`, ensure the MCP configuration uses `transport: "sse"` so Gemini negotiates Server-Sent Events.
+
+If you see a certificate error like `Hostname/IP does not match certificate's altnames`, the public HTTPS domain is not ready yet. Use the HTTP load balancer endpoint shown above until the `api.prociq.ai` domain is available.
+
 ## Project Structure
 
 ```
@@ -39,6 +101,10 @@ MemLayer-Plugin/
     └── memory/
         ├── .claude-plugin/
         │   └── plugin.json   # Plugin manifest
+        ├── .gemini-extension/
+        │   ├── extension.json  # Gemini extension manifest
+        │   ├── commands/       # Gemini command prompts
+        │   └── instructions/   # Gemini usage guide
         ├── commands/         # CLI commands
         │   ├── audit.md      # /memory:audit - inspect memory state
         │   ├── teach.md      # /memory:teach - inject knowledge manually
