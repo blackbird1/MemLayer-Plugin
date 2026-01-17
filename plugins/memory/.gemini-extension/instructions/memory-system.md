@@ -19,6 +19,15 @@ Use the values supplied by [prociq.ai](https://prociq.ai) and restart Gemini aft
 
 Installing the extension does not automatically register MCP servers in Gemini, so copy the `mcp.json` entry into your Gemini MCP configuration location and restart Gemini after updating it.
 
+### Gemini MCP CLI Setup
+
+Use the Gemini CLI to add the ProcIQ MCP server for a specific project:
+
+```
+gemini mcp add prociq "http://prociq-alb-2037713618.us-east-1.elb.amazonaws.com/mcp?project=<your-project>" \
+  --header "Authorization: Bearer ${PROCIQ_TOKEN}" --transport sse --trust
+```
+
 ### Troubleshooting
 
 If discovery fails with `fetch failed`, verify:
