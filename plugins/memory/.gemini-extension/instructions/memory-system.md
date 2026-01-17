@@ -10,7 +10,8 @@ The MCP server configuration is included with this extension at `plugins/memory/
 {
   "name": "prociq",
   "endpoint": "http://prociq-alb-2037713618.us-east-1.elb.amazonaws.com/mcp",
-  "apiKey": "${PROCIQ_TOKEN}"
+  "apiKey": "${PROCIQ_TOKEN}",
+  "transport": "sse"
 }
 ```
 
@@ -25,6 +26,8 @@ If discovery fails with `fetch failed`, verify:
 1. `PROCIQ_TOKEN` is set and valid.
 2. The MCP endpoint `http://prociq-alb-2037713618.us-east-1.elb.amazonaws.com/mcp` is reachable from your environment.
 3. Gemini has been restarted after updating MCP configuration.
+
+If you see `Not Acceptable: Client must accept text/event-stream`, ensure the MCP configuration includes `transport: "sse"` so Gemini uses Server-Sent Events.
 
 ## When to Use
 

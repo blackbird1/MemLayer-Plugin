@@ -61,7 +61,8 @@ The bundled configuration expects the ProcIQ API key (bearer token) to be provid
 {
   "name": "prociq",
   "endpoint": "http://prociq-alb-2037713618.us-east-1.elb.amazonaws.com/mcp",
-  "apiKey": "${PROCIQ_TOKEN}"
+  "apiKey": "${PROCIQ_TOKEN}",
+  "transport": "sse"
 }
 ```
 
@@ -76,6 +77,8 @@ If you see errors like `Error during discovery for MCP server 'prociq': fetch fa
 1. `PROCIQ_TOKEN` is set in your environment and is a valid bearer token.
 2. Your network can reach `http://prociq-alb-2037713618.us-east-1.elb.amazonaws.com/mcp` (no proxy or firewall blocking HTTP).
 3. Your Gemini MCP configuration file includes the `prociq` entry and Gemini was restarted after changes.
+
+If you see `Not Acceptable: Client must accept text/event-stream`, ensure the MCP configuration uses `transport: "sse"` so Gemini negotiates Server-Sent Events.
 
 ## Project Structure
 
